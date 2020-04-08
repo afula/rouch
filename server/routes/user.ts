@@ -68,6 +68,11 @@ interface RegisterData extends Environment {
     password: string;
 }
 
+interface AccessCode extends Environment {
+
+    /** 用户密码 */
+    code: string;
+}
 /**
  * 注册新用户
  * @param ctx Context
@@ -148,6 +153,7 @@ export async function register(ctx: KoaContext<RegisterData>) {
 }
 
 type LoginData = RegisterData;
+type AccessCodeData = AccessCode
 
 /**
  * 账密登录
@@ -214,6 +220,81 @@ export async function login(ctx: KoaContext<LoginData>) {
         friends,
         token,
         isAdmin: user._id.toString() === config.administrator,
+    };
+}
+
+/**
+ * 账密登录
+ * @param ctx Context
+ */
+export async function loginByCode(ctx: KoaContext<AccessCodeData>) {
+    assert(!config.disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
+    const { code, os, browser, environment } = ctx.data;
+    assert(code, 'login code can not be empty');
+    const group = await Group.findOne({ code });
+    if (!group) {
+        throw new AssertionError({ message: 'The Group Code Error' });
+    }
+
+    if (code !== group.code) {
+        throw new AssertionError({ message: 'login code  is wrong' });
+    }
+    // const isPasswordCorrect = bcrypt.compareSync(code, group.code);
+    // assert(isPasswordCorrect, 'channel code  is wrong');
+    const token = generateToken(code, environment);
+    const username = token;
+    // const password = token;
+    console.log(`login input code: ${code},database code: ${group.code},token: ${token}`);
+
+    // const user = await User.findOne({ username });
+    // assert(!user, 'user has already exists');
+
+    /*    const defaultGroup = await Group.findOne({ isDefault: true });
+    if (!defaultGroup) {
+        // TODO: refactor when node types support "Assertion Functions" https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#assertion-functions
+        throw new AssertionError({ message: '默认群组不存在' });
+    } */
+
+    /*    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password, salt); */
+
+    let newUser = null;
+    try {
+        newUser = await User.create({
+            username: Date.now(),
+            salt: token,
+            password: token,
+            avatar: getRandomAvatar(),
+        });
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return '用户名包含不支持的字符或者长度超过限制';
+        }
+        throw err;
+    }
+    console.log(`login input code: create user`);
+    handleNewUser(newUser);
+    ctx.socket.join(group._id.toString());
+
+    await Socket.updateOne(
+        { id: ctx.socket.id },
+        {
+            user: newUser._id,
+            os,
+            browser,
+            environment,
+        },
+    );
+
+    return {
+        _id: newUser._id,
+        avatar: newUser.avatar,
+        username,
+        tag: newUser.tag,
+        groups: group,
+        friends: null,
+        token,
+        isAdmin: code === group.admin,
     };
 }
 

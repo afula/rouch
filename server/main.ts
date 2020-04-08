@@ -10,17 +10,21 @@ import getRandomAvatar from '../utils/getRandomAvatar';
 connectDB()
     .then(async () => {
         // 判断默认群是否存在, 不存在就创建一个
-        const group = await Group.findOne({ isDefault: true });
+        const code = 'test';
+        const group = await Group.findOne({ code: 'test' });
         if (!group) {
             const defaultGroup = await Group.create({
                 name: config.defaultGroupName,
                 avatar: getRandomAvatar(),
                 isDefault: true,
+                code,
+                admin: code,
             });
             if (!defaultGroup) {
                 console.error('create default group fail');
                 return process.exit(1);
             }
+            console.log(` >>> Please login using code:  ${code}`);
         } else if (group.name !== config.defaultGroupName) {
             group.name = config.defaultGroupName;
             await group.save();

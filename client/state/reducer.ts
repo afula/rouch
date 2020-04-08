@@ -301,9 +301,9 @@ function reducer(state: State = initialState, action: Action): State {
             // @ts-ignore
             const linkmans: Linkman[] = [
                 // @ts-ignore
-                ...groups.map(transformGroup),
+                // ...groups.map(transformGroup),
                 // @ts-ignore
-                ...friends.map(transformFriend),
+                // ...friends.map(transformFriend),
             ];
             linkmans.forEach((linkman) => {
                 let existMessages = {};

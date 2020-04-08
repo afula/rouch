@@ -1,9 +1,9 @@
 import { Schema, model, Document } from 'mongoose';
 import { UserDocument } from './user';
+import { string } from 'prop-types';
 
 const GroupSchema = new Schema({
     createTime: { type: Date, default: Date.now },
-
     name: {
         type: String,
         trim: true,
@@ -24,6 +24,8 @@ const GroupSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    code: String,
+    admin: String,
     members: [
         {
             type: Schema.Types.ObjectId,
@@ -49,6 +51,8 @@ export declare interface GroupDocument extends Document {
     members: Schema.Types.ObjectId[];
     /** 创建时间 */
     createTime: Date;
+    admin: string;
+    code: string;
 }
 
 /**

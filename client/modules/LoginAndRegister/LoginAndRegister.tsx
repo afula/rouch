@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 
 import { Tabs, TabPane, TabContent, ScrollableInkTabBar } from '../../components/Tabs';
 import Style from './LoginAndRegister.less';
-import Login from './Login';
-import Register from './Register';
+import AccessByCode from './AccessByCode';
+// import Register from './Register';
 import Dialog from '../../components/Dialog';
 import { State } from '../../state/reducer';
 import useAction from '../../hooks/useAction';
@@ -19,7 +19,7 @@ function LoginAndRegister() {
         <Dialog
             visible={loginRegisterDialogVisible}
             closable={false}
-            onClose={() => action.toggleLoginRegisterDialog(false)}
+            onClose={() => action.toggleLoginRegisterDialog(true)}
         >
             <Tabs
                 className={Style.login}
@@ -27,12 +27,12 @@ function LoginAndRegister() {
                 renderTabBar={() => <ScrollableInkTabBar />}
                 renderTabContent={() => <TabContent />}
             >
-                <TabPane tab="登录" key="login">
-                    <Login />
+                <TabPane tab="Login" key="login">
+                    <AccessByCode />
                 </TabPane>
-                <TabPane tab="注册" key="register">
+                {/*                <TabPane tab="注册" key="register">
                     <Register />
-                </TabPane>
+                </TabPane> */}
             </Tabs>
         </Dialog>
     );

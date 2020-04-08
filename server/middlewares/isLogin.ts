@@ -7,6 +7,7 @@ export default function isLogin() {
     const noRequireLoginEvent = new Set([
         'register',
         'login',
+        'loginByCode',
         'loginByToken',
         'guest',
         'getDefaultGroupHistoryMessages',

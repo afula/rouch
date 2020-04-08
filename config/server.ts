@@ -11,13 +11,13 @@ export default {
     port: options.port || env.Port || 9200,
 
     // mongodb address
-    database: options.database || env.Database || 'mongodb://localhost:27017/fiora',
+    database: options.database || env.Database || 'mongodb://18.177.28.121:27017/fiora',
 
     // jwt encryption secret
     jwtSecret: options.jwtSecret || env.JwtSecret || 'jwtSecret',
 
     // Maximize the number of groups
-    maxGroupsCount: 3,
+    maxGroupsCount: 1000,
 
     // qiniu config
     qiniuAccessKey: options.qiniuAccessKey || env.QiniuAccessKey || '',

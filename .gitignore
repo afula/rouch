@@ -13,3 +13,4 @@ build.sh
 ecosystem.config.js
 
 .idea/
+.vscode/

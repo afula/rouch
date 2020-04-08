@@ -72,6 +72,37 @@ export async function login(
     saveUsername(user.username);
     return user;
 }
+/**
+ * 使用账密登录
+ * @param code 密码
+ * @param os 系统
+ * @param browser 浏览器
+ * @param environment 环境信息
+ */
+export async function loginByCode(
+    code: string,
+    os = '',
+    browser = '',
+    environment = '',
+) {
+    const username = 'Please Change your name';
+    const [err, user] = await fetch(
+        'loginByCode',
+        {
+            code,
+            os,
+            browser,
+            environment,
+        },
+    );
+
+    if (err) {
+        return null;
+    }
+
+    saveUsername(username);
+    return user;
+}
 
 /**
  * 使用token登录
