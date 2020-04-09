@@ -52,7 +52,7 @@ function Chat() {
                 <HeaderBar name="" type="" onClickFunction={() => {}} />
                 <div className={Style.noLinkman}>
                     <div className={Style.noLinkmanImage} />
-                    <h2 className={Style.noLinkmanText}>找个群或者好友呀, 不然怎么聊天~~</h2>
+                    <h2 className={Style.noLinkmanText}>登陆后你就可以愉快的聊天了*_*</h2>
                 </div>
                 <ChatInput />
             </div>
