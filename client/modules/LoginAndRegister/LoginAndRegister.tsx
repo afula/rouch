@@ -19,7 +19,7 @@ function LoginAndRegister() {
         <Dialog
             visible={loginRegisterDialogVisible}
             closable={false}
-            onClose={() => action.toggleLoginRegisterDialog(false)}
+            onClose={() => action.toggleLoginRegisterDialog(true)}
         >
             <Tabs
                 className={Style.login}

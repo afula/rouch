@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import platform from 'platform';
 import { useDispatch } from 'react-redux';
 
+import Fingerprint2 from 'fingerprintjs2';
 import Input from '../../components/Input';
 import useAction from '../../hooks/useAction';
 
@@ -11,7 +12,6 @@ import getFriendId from '../../../utils/getFriendId';
 import { Message } from '../../state/reducer';
 import convertMessage from '../../../utils/convertMessage';
 import { ActionTypes } from '../../state/action';
-import Fingerprint2 from 'fingerprintjs2';
 
 /** 登录框 */
 function Login() {
@@ -57,13 +57,13 @@ function Login() {
 
             const linkmanIds = [
                 ...user.groups.map((group: any) => group._id),
-                ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
+                // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
             ];
             const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
-            Object.values(linkmanMessages).forEach(
-                // @ts-ignore
-                (messages: Message[]) => messages.forEach(convertMessage),
-            );
+            // Object.values(linkmanMessages).forEach(
+            //     // @ts-ignore
+            //     (messages: Message[]) => messages.forEach(convertMessage),
+            // );
             dispatch({
                 type: ActionTypes.SetLinkmansLastMessages,
                 payload: linkmanMessages,

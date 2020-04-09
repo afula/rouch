@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { hot } from 'react-hot-loader';
 import { useSelector } from 'react-redux';
-
+import useAction from './hooks/useAction';
 import './assets/styles/normalize.less';
 import './assets/styles/iconfont.less';
 
@@ -60,6 +60,15 @@ function App() {
     // 计算窗口高度/宽度百分比
     const [width, setWidth] = useState(getWidthPercent());
     const [height, setHeight] = useState(getHeightPercent());
+    const action = useAction();
+    useEffect(() => {
+        window.localStorage.removeItem('token');
+        // const token = localStorage.getItem('token');
+        // const token = null;
+        // if (!token) {
+        action.setStatus('loginRegisterDialogVisible', true);
+        // }
+    }, [action]);
     useEffect(() => {
         window.onresize = () => {
             setWidth(getWidthPercent());

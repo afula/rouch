@@ -40,6 +40,7 @@ export async function register(
  * 使用账密登录
  * @param username 用户名
  * @param password 密码
+ * @param fingerprint 指纹
  * @param os 系统
  * @param browser 浏览器
  * @param environment 环境信息

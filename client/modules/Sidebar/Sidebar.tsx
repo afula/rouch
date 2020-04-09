@@ -45,7 +45,7 @@ function Sidebar() {
             if (selfInfoDialogVisible && !SelfInfo) {
                 // @ts-ignore
                 const selfInfoModule = await import(
-                    /* webpackChunkName: "self-info" */ './SelfInfo'
+                    /* webpackChunkName: "self-info" */ './SelfInfo',
                 );
                 SelfInfo = selfInfoModule.default;
                 setTimestamp(Date.now());
@@ -100,9 +100,9 @@ function Sidebar() {
                     />
                 )}
                 <div className={Style.buttons}>
-                    {isLogin &&
-                        isAdmin &&
-                        renderTooltip(
+                    {isLogin
+                        && isAdmin
+                        && renderTooltip(
                             '管理员',
                             <IconButton
                                 width={40}
@@ -152,8 +152,8 @@ function Sidebar() {
                             onClick={() => toggleAboutDialogVisible(true)}
                         />,
                     )}
-                    {isLogin &&
-                        renderTooltip(
+                    {isLogin
+                        && renderTooltip(
                             '设置',
                             <IconButton
                                 width={40}
@@ -163,8 +163,8 @@ function Sidebar() {
                                 onClick={() => toggleSettingDialogVisible(true)}
                             />,
                         )}
-                    {isLogin &&
-                        renderTooltip(
+                    {isLogin
+                        && renderTooltip(
                             '退出登录',
                             <IconButton
                                 width={40}

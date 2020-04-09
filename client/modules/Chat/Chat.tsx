@@ -45,7 +45,7 @@ function Chat() {
     if (!hasUserInfo) {
         return <div className={Style.chat} />;
     }
-    //todo if (!linkman)
+    // todo if (!linkman)
     console.log('linkman', linkman);
     if (!isLogin) {
         return (

@@ -9,7 +9,7 @@ import User, { UserDocument } from '../models/user';
 import Group from '../models/group';
 import Friend from '../models/friend';
 import Socket from '../models/socket';
-import Message from '../models/message';
+import Message, { MessageDocument } from '../models/message';
 
 import config from '../../config/server';
 import getRandomAvatar from '../../utils/getRandomAvatar';
@@ -68,6 +68,14 @@ interface RegisterData extends Environment {
     password: string;
 }
 
+interface LoginData extends Environment {
+    /** 用户名 */
+    username: string;
+    /** 用户密码 */
+    password: string;
+    /** 指纹 */
+    fingerprint: string,
+}
 /**
  * 注册新用户
  * @param ctx Context
@@ -147,37 +155,89 @@ export async function register(ctx: KoaContext<RegisterData>) {
     };
 }
 
-type LoginData = RegisterData;
+// type LoginData = RegisterData;
 
 /**
  * 账密登录
  * @param ctx Context
  */
+// export async function login(ctx: KoaContext<LoginData>) {
+//     assert(!ctx.socket.user, '你已经登录了');
+//
+//     const { username, password, os, browser, environment } = ctx.data;
+//     console.log('username>>>', username);
+//     console.log('password>>>', password);
+//     console.log('get login data>>>', ctx.data);
+//     assert(username, '用户名不能为空');
+//     assert(password, '密码不能为空');
+//
+//     const user = await User.findOne({ username });
+//     if (!user) {
+//         throw new AssertionError({ message: '该用户不存在' });
+//     }
+//
+//     const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+//     assert(isPasswordCorrect, '密码错误');
+//
+//     handleNewUser(user);
+//
+//     user.lastLoginTime = new Date();
+//     await user.save();
+//
+//     const groups = await Group.find(
+//         { members: user },
+//         {
+//             _id: 1,
+//             name: 1,
+//             avatar: 1,
+//             creator: 1,
+//             createTime: 1,
+//         },
+//     );
+//     groups.forEach((group) => {
+//         ctx.socket.join(group._id.toString());
+//     });
+//
+//     const friends = await Friend.find({ from: user._id }).populate('to', {
+//         avatar: 1,
+//         username: 1,
+//     });
+//
+//     const token = generateToken(user._id.toString(), environment);
+//
+//     ctx.socket.user = user._id;
+//     await Socket.updateOne(
+//         { id: ctx.socket.id },
+//         {
+//             user: user._id,
+//             os,
+//             browser,
+//             environment,
+//         },
+//     );
+//
+//     return {
+//         _id: user._id,
+//         avatar: user.avatar,
+//         username: user.username,
+//         tag: user.tag,
+//         groups,
+//         friends,
+//         token,
+//         isAdmin: user._id.toString() === config.administrator,
+//     };
+// }
+/**
+ * 账密登录
+ * @param ctx Context
+ */
 export async function login(ctx: KoaContext<LoginData>) {
-    assert(!ctx.socket.user, '你已经登录了');
-
-    const { username, password, os, browser, environment } = ctx.data;
-    console.log('username>>>', username);
-    console.log('password>>>', password);
-    console.log('get login data>>>', ctx.data);
-    assert(username, '用户名不能为空');
-    assert(password, '密码不能为空');
-
-    const user = await User.findOne({ username });
-    if (!user) {
-        throw new AssertionError({ message: '该用户不存在' });
-    }
-
-    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-    assert(isPasswordCorrect, '密码错误');
-
-    handleNewUser(user);
-
-    user.lastLoginTime = new Date();
-    await user.save();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { username, password, fingerprint, os, browser, environment } = ctx.data;
+    assert(username, 'login code can not be empty');
 
     const groups = await Group.find(
-        { members: user },
+        { username },
         {
             _id: 1,
             name: 1,
@@ -186,16 +246,84 @@ export async function login(ctx: KoaContext<LoginData>) {
             createTime: 1,
         },
     );
-    groups.forEach((group) => {
+    if (!(groups && groups.length)) {
+        throw new AssertionError({ message: 'Your Code Is Error' });
+    }
+
+    let user = await User.findOne({ salt: fingerprint });
+
+    const name = Date.now().toString();
+    const salt = fingerprint;
+    const passwd = fingerprint;
+    const avatar = getRandomAvatar();
+    const lastLoginTime = new Date();
+
+    if (!user) {
+        try {
+            user = await User.create({
+                name,
+                salt,
+                passwd,
+                avatar,
+                lastLoginTime,
+            });
+        } catch (err) {
+            if (err.name === 'ValidationError') {
+                return '用户名包含不支持的字符或者长度超过限制';
+            }
+            throw err;
+        }
+    } else {
+        user.username = name;
+        user.salt = salt;
+        user.password = passwd;
+        user.avatar = avatar;
+        user.lastLoginTime = lastLoginTime;
+        await user.save();
+    }
+    const userID = user._id;
+    const token = generateToken(userID.toString(), environment);
+
+
+    // eslint-disable-next-line array-callback-return
+    const updates = groups.map((group) => {
+        ctx.socket.join(group._id.toString());
+
+        if (!group.creator) {
+            group.creator = user as UserDocument;
+        }
+        if (group.members && group.members.length && group.members.indexOf(userID) === -1) {
+            group.members.push(userID);
+        }
+        group.save();
+
         ctx.socket.join(group._id.toString());
     });
 
-    const friends = await Friend.find({ from: user._id }).populate('to', {
-        avatar: 1,
-        username: 1,
-    });
+    await Promise.all(updates);
 
-    const token = generateToken(user._id.toString(), environment);
+
+    const promises = groups.map((group) =>
+        Message.find(
+            { to: group._id },
+            {
+                type: 1,
+                content: 1,
+                from: 1,
+                createTime: 1,
+            },
+            { sort: { createTime: -1 }, limit: 15 },
+        ).populate('from', { username: 1, avatar: 1, tag: 1 }));
+    const results = await Promise.all(promises);
+    type Messages = {
+        [linkmanId: string]: MessageDocument[];
+    };
+
+    const messages = groups.reduce((result: Messages, groupID, index) => {
+        result[groupID.toString()] = (results[index] || []).reverse();
+        return result;
+    }, {});
+    console.log(`message: ${JSON.stringify(messages)}`);
 
     ctx.socket.user = user._id;
     await Socket.updateOne(
@@ -213,10 +341,19 @@ export async function login(ctx: KoaContext<LoginData>) {
         avatar: user.avatar,
         username: user.username,
         tag: user.tag,
-        groups,
-        friends,
+        groups: [
+            // {
+            //     _id: group._id,
+            //     name: group.name,
+            //     avatar: group.avatar,
+            //     creator: group.creator._id,
+            //     createTime: group.createTime,
+            //     messages,
+            // },
+        ],
+        friends: [],
         token,
-        isAdmin: user._id.toString() === config.administrator,
+        // isAdmin: code === group.admin,
     };
 }
 
