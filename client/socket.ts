@@ -44,6 +44,8 @@ socket.on('connect', async () => {
     dispatch({ type: ActionTypes.Connect, payload: null });
 
     const token = window.localStorage.getItem('token');
+    console.log(`loginByToken: ${token}`);
+    // const token = null;
     if (token) {
         const user = await loginByToken(
             token,
@@ -72,7 +74,7 @@ socket.on('connect', async () => {
             return null;
         }
     }
-    loginFailback();
+    // loginFailback();
     return null;
 });
 

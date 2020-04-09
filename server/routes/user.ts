@@ -72,6 +72,7 @@ interface AccessCode extends Environment {
 
     /** 用户密码 */
     code: string;
+    finger: string;
 }
 /**
  * 注册新用户
@@ -111,7 +112,7 @@ export async function register(ctx: KoaContext<RegisterData>) {
         throw err;
     }
 
-    handleNewUser(newUser);
+    // handleNewUser(newUser);
 
     if (!defaultGroup.creator) {
         defaultGroup.creator = newUser;
@@ -146,7 +147,7 @@ export async function register(ctx: KoaContext<RegisterData>) {
                 messages: [],
             },
         ],
-        friends: [],
+        // friends: [],
         token,
         isAdmin: false,
     };
@@ -174,7 +175,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     const isPasswordCorrect = bcrypt.compareSync(password, user.password);
     assert(isPasswordCorrect, '密码错误');
 
-    handleNewUser(user);
+    // handleNewUser(user);
 
     user.lastLoginTime = new Date();
     await user.save();
@@ -228,58 +229,46 @@ export async function login(ctx: KoaContext<LoginData>) {
  * @param ctx Context
  */
 export async function loginByCode(ctx: KoaContext<AccessCodeData>) {
-    assert(!config.disableRegister, '注册功能已被禁用, 请联系管理员开通账号');
-    const { code, os, browser, environment } = ctx.data;
+    const { code, finger, os, browser, environment } = ctx.data;
     assert(code, 'login code can not be empty');
     const group = await Group.findOne({ code });
     if (!group) {
-        throw new AssertionError({ message: 'The Group Code Error' });
+        throw new AssertionError({ message: 'Your Code Is Error' });
     }
-
-    if (code !== group.code) {
-        throw new AssertionError({ message: 'login code  is wrong' });
-    }
-    // const isPasswordCorrect = bcrypt.compareSync(code, group.code);
-    // assert(isPasswordCorrect, 'channel code  is wrong');
-    const token = generateToken(code, environment);
-    const username = token;
-    // const password = token;
-    console.log(`login input code: ${code},database code: ${group.code},token: ${token}`);
-
-    // const user = await User.findOne({ username });
-    // assert(!user, 'user has already exists');
-
-    /*    const defaultGroup = await Group.findOne({ isDefault: true });
-    if (!defaultGroup) {
-        // TODO: refactor when node types support "Assertion Functions" https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#assertion-functions
-        throw new AssertionError({ message: '默认群组不存在' });
-    } */
-
-    /*    const salt = await bcrypt.genSalt(saltRounds);
-    const hash = await bcrypt.hash(password, salt); */
-
-    let newUser = null;
-    try {
-        newUser = await User.create({
-            username: Date.now(),
-            salt: token,
-            password: token,
-            avatar: getRandomAvatar(),
-        });
-    } catch (err) {
-        if (err.name === 'ValidationError') {
-            return '用户名包含不支持的字符或者长度超过限制';
+    let user = await User.findOne({ salt: finger });
+    if (!user) {
+        const username = Date.now();
+        try {
+            user = await User.create({
+                username,
+                salt: finger,
+                password: finger,
+                avatar: getRandomAvatar(),
+            });
+        } catch (err) {
+            if (err.name === 'ValidationError') {
+                return '用户名包含不支持的字符或者长度超过限制';
+            }
+            throw err;
         }
-        throw err;
     }
-    console.log(`login input code: create user`);
-    handleNewUser(newUser);
-    ctx.socket.join(group._id.toString());
+    const token = generateToken(user._id.toString(), environment);
+    user.lastLoginTime = new Date();
+    await user.save();
 
+    if (!group.creator) {
+        group.creator = user as UserDocument;
+    }
+
+    group.members.push(user._id);
+    await group.save();
+    console.log(`login input code: ${code},database group: ${group},token: ${token}`);
+    ctx.socket.join(group._id.toString());
+    ctx.socket.user = user._id;
     await Socket.updateOne(
         { id: ctx.socket.id },
         {
-            user: newUser._id,
+            user: user._id,
             os,
             browser,
             environment,
@@ -287,12 +276,21 @@ export async function loginByCode(ctx: KoaContext<AccessCodeData>) {
     );
 
     return {
-        _id: newUser._id,
-        avatar: newUser.avatar,
-        username,
-        tag: newUser.tag,
-        groups: group,
-        friends: null,
+        _id: user._id,
+        avatar: user.avatar,
+        username: user.username,
+        tag: user.tag,
+        groups: [
+            {
+                _id: group._id,
+                name: group.name,
+                avatar: group.avatar,
+                creator: group.creator._id,
+                createTime: group.createTime,
+                messages: [],
+            },
+        ],
+        friends: [],
         token,
         isAdmin: code === group.admin,
     };
@@ -312,6 +310,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
 
     const { token, os, browser, environment } = ctx.data;
     assert(token, 'token不能为空');
+    console.log('loginByToken');
 
     let payload = null;
     try {
@@ -320,7 +319,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         return '非法token';
     }
 
-    assert(Date.now() < payload.expires, 'token已过期');
+    assert(Date.now() < payload.expires, 'your code has expired');
     assert.equal(environment, payload.environment, '非法登录');
 
     const user = await User.findOne(
@@ -334,10 +333,10 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         },
     );
     if (!user) {
-        throw new AssertionError({ message: '用户不存在' });
+        throw new AssertionError({ message: 'user isnt exist' });
     }
 
-    handleNewUser(user);
+    // handleNewUser(user);
 
     user.lastLoginTime = new Date();
     await user.save();

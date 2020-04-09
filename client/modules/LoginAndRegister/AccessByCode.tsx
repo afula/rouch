@@ -28,6 +28,7 @@ function AccessByCode() {
             platform.name,
             platform.description,
         );
+
         if (user) {
             action.setUser(user);
             action.toggleLoginRegisterDialog(false);
@@ -35,17 +36,20 @@ function AccessByCode() {
 
             const linkmanIds = [
                 ...user.groups.map((group: any) => group._id),
-                ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
+                // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
             ];
             const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
-            Object.values(linkmanMessages).forEach(
-                // @ts-ignore
-                (messages: Message[]) => messages.forEach(convertMessage),
-            );
-            dispatch({
-                type: ActionTypes.SetLinkmansLastMessages,
-                payload: linkmanMessages,
-            });
+            console.log(`linkmanMessages:---> ${JSON.stringify(linkmanMessages)}`);
+            if (linkmanMessages !== null) {
+                Object.values(linkmanMessages).forEach(
+                    // @ts-ignore
+                    (messages: Message[]) => messages.forEach(convertMessage),
+                );
+                dispatch({
+                    type: ActionTypes.SetLinkmansLastMessages,
+                    payload: linkmanMessages,
+                });
+            }
         }
     }
 
@@ -58,7 +62,7 @@ function AccessByCode() {
             {/*    onChange={setUsername} */}
             {/*    onEnter={handleLogin} */}
             {/* /> */}
-            {/*<h3 className={Style.title}>Please Input Your Access Code</h3>*/}
+            {/* <h3 className={Style.title}>Please Input Your Access Code</h3> */}
             <Input
                 className={Style.input}
                 type="code"

@@ -1,6 +1,8 @@
 import fetch from '../utils/fetch';
 import { User } from './state/reducer';
 
+import fp from "fingerprintjs2";
+
 function saveUsername(username: string) {
     window.localStorage.setItem('username', username);
 }

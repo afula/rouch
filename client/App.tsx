@@ -6,6 +6,7 @@ import './assets/styles/normalize.less';
 import './assets/styles/iconfont.less';
 
 // @ts-ignore
+import Fingerprint2 from 'fingerprintjs2';
 import Style from './App.less';
 import { isMobile } from '../utils/ua';
 import { State } from './state/reducer';
@@ -19,7 +20,6 @@ import { ShowUserOrGroupInfoContext } from './context';
 import Chat from './modules/Chat/Chat';
 import inobounce from '../utils/inobounce';
 import useAction from './hooks/useAction';
-
 /**
  * 获取窗口宽度百分比
  */
@@ -59,11 +59,13 @@ function App() {
     const $app = useRef(null);
     const action = useAction();
     useEffect(() => {
+        window.localStorage.removeItem('token');
         const token = localStorage.getItem('token');
+        // const token = null;
         if (!token) {
             action.setStatus('loginRegisterDialogVisible', true);
         }
-    }, []);
+    }, [action]);
 
     // 计算窗口高度/宽度百分比
     const [width, setWidth] = useState(getWidthPercent());
@@ -76,6 +78,12 @@ function App() {
 
         // @ts-ignore
         inobounce($app.current);
+        Fingerprint2.get((components) => {
+            // console.log(components); // an array of components: {key: ..., value: ...}
+            const values = components.map((component) => component.value);
+            const murmur = Fingerprint2.x64hash128(values.join(''), 31);
+            console.log('Fingerprint', murmur);
+        });
     }, []);
 
     // 获取底图尺寸
@@ -145,25 +153,24 @@ function App() {
             <div className={Style.blur} style={blurStyle} />
 
 
+            {/* { userInfoDialog && ( */}
+            {/*    <div className={Style.child} style={childStyle}> */}
+            {/*        <ShowUserOrGroupInfoContext.Provider value={contextValue as unknown as null}> */}
+            {/*            <Sidebar /> */}
+            {/*            <FunctionBarAndLinkmanList /> */}
+            {/*            <Chat /> */}
+            {/*        </ShowUserOrGroupInfoContext.Provider> */}
+            {/*    </div> */}
+            {/* )} */}
 
-            { userInfoDialog && (
-                <div className={Style.child} style={childStyle}>
-                    <ShowUserOrGroupInfoContext.Provider value={contextValue as unknown as null}>
-                        <Sidebar />
-                        <FunctionBarAndLinkmanList />
-                        <Chat />
-                    </ShowUserOrGroupInfoContext.Provider>
-                </div>
-            )}
 
-
-            {/*<div className={Style.child} style={childStyle}>*/}
-            {/*    <ShowUserOrGroupInfoContext.Provider value={contextValue as unknown as null}>*/}
-            {/*        <Sidebar />*/}
-            {/*        <FunctionBarAndLinkmanList />*/}
-            {/*        <Chat />*/}
-            {/*    </ShowUserOrGroupInfoContext.Provider>*/}
-            {/*</div>*/}
+            <div className={Style.child} style={childStyle}>
+                <ShowUserOrGroupInfoContext.Provider value={contextValue as unknown as null}>
+                    {/* <Sidebar /> */}
+                    <FunctionBarAndLinkmanList />
+                    <Chat />
+                </ShowUserOrGroupInfoContext.Provider>
+            </div>
 
 
             <LoginAndRegister />

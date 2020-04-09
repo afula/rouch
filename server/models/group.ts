@@ -1,6 +1,6 @@
 import { Schema, model, Document } from 'mongoose';
-import { UserDocument } from './user';
 import { string } from 'prop-types';
+import { UserDocument } from './user';
 
 const GroupSchema = new Schema({
     createTime: { type: Date, default: Date.now },
