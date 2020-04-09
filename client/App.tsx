@@ -106,9 +106,9 @@ function App() {
     // 模糊背景样式
     const blurStyle = useMemo(
         () => ({
-            backgroundPosition: `${(-(1 - width) * window.innerWidth) / 2}px ${(-(1 - height)
-                * window.innerHeight)
-                / 2}px`,
+            backgroundPosition: `${(-(1 - width) * window.innerWidth) / 2}px ${
+                (-(1 - height) * window.innerHeight) / 2
+            }px`,
             ...style,
             ...childStyle,
         }),
@@ -121,22 +121,25 @@ function App() {
     const [groupInfoDialog, toggleGroupInfoDialog] = useState(false);
     const [groupInfo, setGroupInfo] = useState(null);
 
-    const contextValue = useMemo(() => ({
-        showUserInfo(user: any) {
-            setUserInfo(user);
-            toggleUserInfoDialog(true);
-        },
-        showGroupInfo(group: any) {
-            setGroupInfo(group);
-            toggleGroupInfoDialog(true);
-        },
-    }), []);
+    const contextValue = useMemo(
+        () => ({
+            showUserInfo(user: any) {
+                setUserInfo(user);
+                toggleUserInfoDialog(true);
+            },
+            showGroupInfo(group: any) {
+                setGroupInfo(group);
+                toggleGroupInfoDialog(true);
+            },
+        }),
+        [],
+    );
 
     return (
         <div className={Style.app} style={style} ref={$app}>
             <div className={Style.blur} style={blurStyle} />
             <div className={Style.child} style={childStyle}>
-                <ShowUserOrGroupInfoContext.Provider value={contextValue as unknown as null}>
+                <ShowUserOrGroupInfoContext.Provider value={(contextValue as unknown) as null}>
                     <Sidebar />
                     <FunctionBarAndLinkmanList />
                     <Chat />

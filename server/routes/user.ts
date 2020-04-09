@@ -157,6 +157,9 @@ export async function login(ctx: KoaContext<LoginData>) {
     assert(!ctx.socket.user, '你已经登录了');
 
     const { username, password, os, browser, environment } = ctx.data;
+    console.log('username>>>', username);
+    console.log('password>>>', password);
+    console.log('get login data>>>', ctx.data);
     assert(username, '用户名不能为空');
     assert(password, '密码不能为空');
 

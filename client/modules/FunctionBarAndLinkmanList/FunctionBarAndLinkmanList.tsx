@@ -32,7 +32,9 @@ function FunctionBarAndLinkmanList() {
         <div className={Style.functionBarAndLinkmanList} onClick={handleClick} role="button">
             <div className={Style.container} {...aero}>
                 {isLogin && <FunctionBar />}
-                <LinkmanList />
+                {isLogin && <LinkmanList />}
+                {/* 登陆后展示群组和好友信息 */}
+                {/* <LinkmanList /> */}
             </div>
         </div>
     );

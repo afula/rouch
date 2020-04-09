@@ -13,27 +13,39 @@ import convertMessage from '../../../utils/convertMessage';
 import { ActionTypes } from '../../state/action';
 import Fingerprint2 from 'fingerprintjs2';
 
-// let murmur = null;
-// Fingerprint2.get((components: any[]) => {
-//     // console.log(components); // an array of components: {key: ..., value: ...}
-//     const values = components.map((component) => component.value);
-//     murmur = Fingerprint2.x64hash128(values.join(''), 31);
-//     console.log('Fingerprint', murmur);
-// });
-// Fingerprint2.get(function (components) {
-//     console.log(components); // an array of components: {key: ..., value: ...}
-// });
 /** 登录框 */
 function Login() {
     const action = useAction();
     const dispatch = useDispatch();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [fingerprint, setFingerPrint] = useState('');
+
+    // function getFinger(){
+    //     let fp: string = '';
+    //     Fingerprint2.get((components: any[]) => {
+    //         // console.log(components); // an array of components: {key: ..., value: ...}
+    //         const values = components.map((component) => component.value);
+    //         fp = Fingerprint2.x64hash128(values.join(''), 31);
+    //         setFingerPrint(fp);
+    //     });
+    // }
+    // console.log('f', fingerprint);
 
     async function handleLogin() {
+        let fp: string = '';
+        // 指纹
+        Fingerprint2.get((components: any[]) => {
+            // console.log(components); // an array of components: {key: ..., value: ...}
+            const values = components.map((component) => component.value);
+            fp = Fingerprint2.x64hash128(values.join(''), 31);
+            setFingerPrint(fp);
+        });
+        console.log('get fingerprint', fingerprint);
         const user = await login(
             username,
             password,
+            fingerprint,
             platform.os?.family,
             platform.name,
             platform.description,

@@ -20,16 +20,13 @@ export async function register(
     browser = '',
     environment = '',
 ) {
-    const [err, user] = await fetch(
-        'register',
-        {
-            username,
-            password,
-            os,
-            browser,
-            environment,
-        },
-    );
+    const [err, user] = await fetch('register', {
+        username,
+        password,
+        os,
+        browser,
+        environment,
+    });
 
     if (err) {
         return null;
@@ -50,20 +47,19 @@ export async function register(
 export async function login(
     username: string,
     password: string,
+    fingerprint: string,
     os = '',
     browser = '',
     environment = '',
 ) {
-    const [err, user] = await fetch(
-        'login',
-        {
-            username,
-            password,
-            os,
-            browser,
-            environment,
-        },
-    );
+    const [err, user] = await fetch('login', {
+        username,
+        password,
+        fingerprint,
+        os,
+        browser,
+        environment,
+    });
 
     if (err) {
         return null;
@@ -80,12 +76,7 @@ export async function login(
  * @param browser 浏览器
  * @param environment 环境信息
  */
-export async function loginByToken(
-    token: string,
-    os = '',
-    browser = '',
-    environment = '',
-) {
+export async function loginByToken(token: string, os = '', browser = '', environment = '') {
     const [err, user] = await fetch(
         'loginByToken',
         {
