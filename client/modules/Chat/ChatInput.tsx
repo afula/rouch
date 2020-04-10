@@ -69,18 +69,16 @@ function ChatInput() {
             if (expressionDialog && !Expression) {
                 // @ts-ignore
                 const ExpressionModule = await import(
-                    /* webpackChunkName: "expression" */ './Expression'
+                    /* webpackChunkName: "expression" */ './EmojiInput/EmojiInput',
                 );
+                // Expression = ExpressionModule.default;
                 Expression = ExpressionModule.default;
                 setTimestamp(Date.now());
-
-
-
             }
             if (codeEditorDialog && !CodeEditor) {
                 // @ts-ignore
                 const CodeEditorModule = await import(
-                    /* webpackChunkName: "code-editor" */ './CodeEditor'
+                    /* webpackChunkName: "code-editor" */ './CodeEditor',
                 );
                 CodeEditor = CodeEditorModule.default;
                 setTimestamp(Date.now());
@@ -117,10 +115,9 @@ function ChatInput() {
             const startPos = input.selectionStart;
             const endPos = input.selectionEnd;
             const restoreTop = input.scrollTop;
-            input.value =
-                input.value.substring(0, startPos) +
-                value +
-                input.value.substring(endPos as number, input.value.length);
+            input.value = input.value.substring(0, startPos)
+                + value
+                + input.value.substring(endPos as number, input.value.length);
             if (restoreTop > 0) {
                 input.scrollTop = restoreTop;
             }
@@ -135,7 +132,7 @@ function ChatInput() {
 
     function handleSelectExpression(expression: string) {
         toggleExpressionDialog(false);
-        insertAtCursor(`#(${expression})`);
+        insertAtCursor(`${expression}`);
     }
 
     function addSelfMessage(type: string, content: string) {
@@ -466,16 +463,17 @@ function ChatInput() {
                     trigger={['click']}
                     visible={expressionDialog}
                     onVisibleChange={toggleExpressionDialog}
-                    overlay={
+                    overlay={(
                         <div className={Style.expressionDropdown}>
                             {Expression && (
                                 <Expression
-                                    onSelectText={handleSelectExpression}
-                                    onSelectImage={sendImageMessage}
+                                    onSelection={handleSelectExpression}
+                                    showPicker={expressionDialog}
+                                    // onSelectImage={sendImageMessage}
                                 />
                             )}
                         </div>
-                    }
+                    )}
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -489,35 +487,46 @@ function ChatInput() {
                 </Dropdown>
 
 
-                {/*<Dropdown*/}
-                {/*    trigger={['click']}*/}
-                {/*    visible={expressionDialog}*/}
-                {/*    onVisibleChange={toggleExpressionDialog}*/}
-                {/*    overlay={*/}
-                {/*        <div className={Style.expressionDropdown}>*/}
-                {/*            {Expression && (*/}
-                {/*                <Expression*/}
-                {/*                    onSelectText={handleSelectExpression}*/}
-                {/*                    onSelectImage={sendImageMessage}*/}
-                {/*                />*/}
-                {/*            )}*/}
-                {/*        </div>*/}
-                {/*    }*/}
-                {/*    animation="slide-up"*/}
-                {/*    placement="topLeft"*/}
-                {/*>*/}
-                {/*    <IconButton*/}
-                {/*        className={Style.iconButton}*/}
-                {/*        width={44}*/}
-                {/*        height={44}*/}
-                {/*        icon="expression"*/}
-                {/*        iconSize={32}*/}
-                {/*    />*/}
-                {/*</Dropdown>*/}
+                {/* <Dropdown */}
+                {/*    trigger={['click']} */}
+                {/*    visible={expressionDialog} */}
+                {/*    onVisibleChange={toggleExpressionDialog} */}
+                {/*    overlay={( */}
+                {/*        <div className={Style.expressionDropdown}> */}
+                {/*            {Expression && ( */}
+                {/*                <Expression */}
+                {/*                    onSelection={handleSelectExpression} */}
+                {/*                    showPicker={expressionDialog} */}
+                {/*                    // onSelectImage={sendImageMessage} */}
+                {/*                /> */}
+                {/*            )} */}
+                {/*        </div> */}
+                {/*    )} */}
+                {/*    animation="slide-up" */}
+                {/*    placement="topLeft" */}
+                {/* > */}
+                {/*<div>*/}
+                {/*    {Expression && (*/}
+                {/*        <Expression*/}
+                {/*            onSelection={handleSelectExpression}*/}
+                {/*            showPicker={expressionDialog}*/}
+                {/*            // onSelectImage={sendImageMessage}*/}
+                {/*        />*/}
+                {/*    )}*/}
+                {/*</div>*/}
+
+                {/*<IconButton*/}
+                {/*    className={Style.iconButton}*/}
+                {/*    width={44}*/}
+                {/*    height={44}*/}
+                {/*    icon="expression"*/}
+                {/*    iconSize={32}*/}
+                {/*    onClick={() => toggleExpressionDialog(true)}*/}
+                {/*/>*/}
 
                 <Dropdown
                     trigger={['click']}
-                    overlay={
+                    overlay={(
                         <div className={Style.featureDropdown}>
                             <Menu onClick={handleFeatureMenuClick}>
                                 {/* <MenuItem key="huaji">发送滑稽</MenuItem> */}
@@ -526,7 +535,7 @@ function ChatInput() {
                                 <MenuItem key="file">发送文件</MenuItem>
                             </Menu>
                         </div>
-                    }
+                    )}
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -561,13 +570,13 @@ function ChatInput() {
                         <Tooltip
                             placement="top"
                             mouseEnterDelay={0.5}
-                            overlay={
+                            overlay={(
                                 <span>
                                     支持粘贴图片发图
                                     <br />
                                     全局按 i 键聚焦
                                 </span>
-                            }
+                            )}
                         >
                             <i className={`iconfont icon-about ${Style.tooltip}`} />
                         </Tooltip>
@@ -583,8 +592,8 @@ function ChatInput() {
                 />
 
                 <div className={Style.atPanel}>
-                    {at.enable &&
-                        getSuggestion().map((member) => (
+                    {at.enable
+                        && getSuggestion().map((member) => (
                             <div
                                 className={Style.atUserList}
                                 key={member.user._id}
