@@ -78,7 +78,27 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
         creator: newGroup.creator,
     };
 }
+/**
+ * 生成从Group Code/Token
+ * @param ctx Context
+ */
+export async function createGroupCode(ctx: KoaContext<JoinGroupData>) {
+    const { groupId } = ctx.data;
+    assert(isValid(groupId), 'The Group is invalidate');
 
+    const group = await Group.findOne({ _id: groupId });
+    if (!group) {
+        throw new AssertionError({ message: 'The Group does not exist' });
+    }
+    const code = Date.now().toString();
+    group.code = code;
+    await group.save();
+
+    return {
+        groupId,
+        code,
+    };
+}
 interface JoinGroupData {
     /** 目标群id */
     groupId: string;

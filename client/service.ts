@@ -172,7 +172,14 @@ export async function createGroup(name: string) {
     const [, group] = await fetch('createGroup', { name });
     return group;
 }
-
+/**
+ * 创建群组 code/token
+ * @param groupId 群组名id
+ */
+export async function createGroupCode(groupId: string) {
+    const [, code] = await fetch('createGroupCode', { groupId });
+    return code;
+}
 /**
  * 删除群组
  * @param groupId 群组id

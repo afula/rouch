@@ -462,6 +462,9 @@ function reducer(state: State = initialState, action: Action): State {
                     },
                 };
             });
+            console.log(`ActionTypes.SetLinkmansLastMessages state: ${state}`);
+            console.log(`ActionTypes.SetLinkmansLastMessages newState: ${newState}`);
+
             return newState;
         }
 

@@ -49,6 +49,10 @@ export declare interface GroupDocument extends Document {
     members: Schema.Types.ObjectId[];
     /** 创建时间 */
     createTime: Date;
+    /* 管理员iid */
+    admin: string;
+    /* 群组code/token */
+    code: string;
 }
 
 /**

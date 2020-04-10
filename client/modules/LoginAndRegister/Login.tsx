@@ -73,6 +73,7 @@ function Login() {
             action.setUser(user);
             action.toggleLoginRegisterDialog(false);
             window.localStorage.setItem('token', user.token);
+            // console.log(`login user: ${JSON.stringify(user)}`);
 
             // const linkmanIds = [
             //     ...user.groups.map((group: any) => group._id),
@@ -85,8 +86,8 @@ function Login() {
             // );
 
             const linkmanMessages = user.messages;
-
-            if (linkmanMessages && linkmanMessages.length) {
+            if (linkmanMessages) {
+                console.log(`login messages: ${JSON.stringify(linkmanMessages)}`);
                 dispatch({
                     type: ActionTypes.SetLinkmansLastMessages,
                     payload: linkmanMessages,

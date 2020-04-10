@@ -21,6 +21,9 @@ import voice from '../../../utils/voice';
 import Tooltip from '../../components/Tooltip';
 import { isMobile } from '../../../utils/ua';
 import useAero from '../../hooks/useAero';
+// import emojiMart from 'emoji-mart.css';
+//  import {Picker} from 'emoji-mart';
+
 
 let CodeEditor: any = null;
 let Expression: any = null;
@@ -44,6 +47,7 @@ function ChatInput() {
     const [timestamp, setTimestamp] = useState(0);
     const $input = useRef(null);
     const aero = useAero();
+    const [emojiPickerSatte, setEmojiPickerState] = useState(false);
 
     /** 全局输入框聚焦快捷键 */
     function focusInput(e: KeyboardEvent) {
@@ -65,15 +69,18 @@ function ChatInput() {
             if (expressionDialog && !Expression) {
                 // @ts-ignore
                 const ExpressionModule = await import(
-                    /* webpackChunkName: "expression" */ './Expression',
+                    /* webpackChunkName: "expression" */ './Expression'
                 );
                 Expression = ExpressionModule.default;
                 setTimestamp(Date.now());
+
+
+
             }
             if (codeEditorDialog && !CodeEditor) {
                 // @ts-ignore
                 const CodeEditorModule = await import(
-                    /* webpackChunkName: "code-editor" */ './CodeEditor',
+                    /* webpackChunkName: "code-editor" */ './CodeEditor'
                 );
                 CodeEditor = CodeEditorModule.default;
                 setTimestamp(Date.now());
@@ -110,9 +117,10 @@ function ChatInput() {
             const startPos = input.selectionStart;
             const endPos = input.selectionEnd;
             const restoreTop = input.scrollTop;
-            input.value = input.value.substring(0, startPos)
-                + value
-                + input.value.substring(endPos as number, input.value.length);
+            input.value =
+                input.value.substring(0, startPos) +
+                value +
+                input.value.substring(endPos as number, input.value.length);
             if (restoreTop > 0) {
                 input.scrollTop = restoreTop;
             }
@@ -441,7 +449,16 @@ function ChatInput() {
         toggleCodeEditorDialog(false);
         return null;
     }
-
+    // let emojiMartPicker;
+    // if (emojiPickerSatte){
+    //     emojiMartPicker = (
+    //         <Picker
+    //             title={'Choose your emoji'}
+    //             emoji={'point_pu'}
+    //             onSelect={emoji => emoji.native}
+    //         />
+    //     );
+    // }
     return (
         <>
             <div className={Style.chatInput} {...aero}>
@@ -449,7 +466,7 @@ function ChatInput() {
                     trigger={['click']}
                     visible={expressionDialog}
                     onVisibleChange={toggleExpressionDialog}
-                    overlay={(
+                    overlay={
                         <div className={Style.expressionDropdown}>
                             {Expression && (
                                 <Expression
@@ -458,7 +475,7 @@ function ChatInput() {
                                 />
                             )}
                         </div>
-                    )}
+                    }
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -470,9 +487,37 @@ function ChatInput() {
                         iconSize={32}
                     />
                 </Dropdown>
+
+
+                {/*<Dropdown*/}
+                {/*    trigger={['click']}*/}
+                {/*    visible={expressionDialog}*/}
+                {/*    onVisibleChange={toggleExpressionDialog}*/}
+                {/*    overlay={*/}
+                {/*        <div className={Style.expressionDropdown}>*/}
+                {/*            {Expression && (*/}
+                {/*                <Expression*/}
+                {/*                    onSelectText={handleSelectExpression}*/}
+                {/*                    onSelectImage={sendImageMessage}*/}
+                {/*                />*/}
+                {/*            )}*/}
+                {/*        </div>*/}
+                {/*    }*/}
+                {/*    animation="slide-up"*/}
+                {/*    placement="topLeft"*/}
+                {/*>*/}
+                {/*    <IconButton*/}
+                {/*        className={Style.iconButton}*/}
+                {/*        width={44}*/}
+                {/*        height={44}*/}
+                {/*        icon="expression"*/}
+                {/*        iconSize={32}*/}
+                {/*    />*/}
+                {/*</Dropdown>*/}
+
                 <Dropdown
                     trigger={['click']}
-                    overlay={(
+                    overlay={
                         <div className={Style.featureDropdown}>
                             <Menu onClick={handleFeatureMenuClick}>
                                 {/* <MenuItem key="huaji">发送滑稽</MenuItem> */}
@@ -481,7 +526,7 @@ function ChatInput() {
                                 <MenuItem key="file">发送文件</MenuItem>
                             </Menu>
                         </div>
-                    )}
+                    }
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -516,13 +561,13 @@ function ChatInput() {
                         <Tooltip
                             placement="top"
                             mouseEnterDelay={0.5}
-                            overlay={(
+                            overlay={
                                 <span>
                                     支持粘贴图片发图
                                     <br />
                                     全局按 i 键聚焦
                                 </span>
-                            )}
+                            }
                         >
                             <i className={`iconfont icon-about ${Style.tooltip}`} />
                         </Tooltip>
@@ -538,8 +583,8 @@ function ChatInput() {
                 />
 
                 <div className={Style.atPanel}>
-                    {at.enable
-                        && getSuggestion().map((member) => (
+                    {at.enable &&
+                        getSuggestion().map((member) => (
                             <div
                                 className={Style.atUserList}
                                 key={member.user._id}
