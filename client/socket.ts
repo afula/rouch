@@ -19,25 +19,25 @@ const options = {
 };
 const socket = IO(config.server, options);
 
-async function loginFailback() {
-    const defaultGroup = await guest(platform.os?.family, platform.name, platform.description);
-    if (defaultGroup) {
-        const { messages } = defaultGroup;
-        dispatch({
-            type: ActionTypes.SetGuest,
-            payload: defaultGroup,
-        });
-
-        messages.forEach(convertMessage);
-        dispatch({
-            type: ActionTypes.AddLinkmanHistoryMessages,
-            payload: {
-                linkmanId: defaultGroup._id,
-                messages,
-            },
-        });
-    }
-}
+// async function loginFailback() {
+//     const defaultGroup = await guest(platform.os?.family, platform.name, platform.description);
+//     if (defaultGroup) {
+//         const { messages } = defaultGroup;
+//         dispatch({
+//             type: ActionTypes.SetGuest,
+//             payload: defaultGroup,
+//         });
+//
+//         messages.forEach(convertMessage);
+//         dispatch({
+//             type: ActionTypes.AddLinkmanHistoryMessages,
+//             payload: {
+//                 linkmanId: defaultGroup._id,
+//                 messages,
+//             },
+//         });
+//     }
+// }
 
 socket.on('connect', async () => {
     // @ts-ignore
@@ -58,7 +58,7 @@ socket.on('connect', async () => {
             });
             const linkmanIds = [
                 ...user.groups.map((group: any) => group._id),
-                ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
+                // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
             ];
             const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
             Object.values(linkmanMessages).forEach(
@@ -72,7 +72,7 @@ socket.on('connect', async () => {
             return null;
         }
     }
-    loginFailback();
+    // loginFailback();
     return null;
 });
 

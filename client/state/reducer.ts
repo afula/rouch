@@ -295,7 +295,7 @@ function reducer(state: State = initialState, action: Action): State {
                 avatar,
                 tag,
                 groups,
-                friends,
+                // friends,
                 isAdmin,
             } = action.payload as SetUserPayload;
             // @ts-ignore
@@ -303,7 +303,7 @@ function reducer(state: State = initialState, action: Action): State {
                 // @ts-ignore
                 ...groups.map(transformGroup),
                 // @ts-ignore
-                ...friends.map(transformFriend),
+                // ...friends.map(transformFriend),
             ];
             linkmans.forEach((linkman) => {
                 let existMessages = {};

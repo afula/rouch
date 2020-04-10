@@ -232,12 +232,13 @@ export async function register(ctx: KoaContext<RegisterData>) {
  * @param ctx Context
  */
 export async function login(ctx: KoaContext<LoginData>) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
     const { username, password, fingerprint, os, browser, environment } = ctx.data;
     assert(username, 'login code can not be empty');
+    console.log(`login code: ${username}`);
 
     const groups = await Group.find(
-        { username },
+        { code: username },
         {
             _id: 1,
             name: 1,
@@ -246,6 +247,7 @@ export async function login(ctx: KoaContext<LoginData>) {
             createTime: 1,
         },
     );
+    console.log(`login group: ${JSON.stringify(groups)}`);
     if (!(groups && groups.length)) {
         throw new AssertionError({ message: 'Your Code Is Error' });
     }
@@ -281,16 +283,20 @@ export async function login(ctx: KoaContext<LoginData>) {
         user.lastLoginTime = lastLoginTime;
         await user.save();
     }
+    console.log(`login user: ${JSON.stringify(user)}`);
     const userID = user._id;
     const token = generateToken(userID.toString(), environment);
 
-
+    let isAdmin: boolean = false;
     // eslint-disable-next-line array-callback-return
     const updates = groups.map((group) => {
         ctx.socket.join(group._id.toString());
-
+        if (group.creator.username === username) {
+            isAdmin = true;
+        }
         if (!group.creator) {
             group.creator = user as UserDocument;
+            isAdmin = true;
         }
         if (group.members && group.members.length && group.members.indexOf(userID) === -1) {
             group.members.push(userID);
@@ -302,6 +308,9 @@ export async function login(ctx: KoaContext<LoginData>) {
 
     await Promise.all(updates);
 
+    type Messages = {
+        [linkmanId: string]: MessageDocument[];
+    };
 
     const promises = groups.map((group) =>
         Message.find(
@@ -315,12 +324,11 @@ export async function login(ctx: KoaContext<LoginData>) {
             { sort: { createTime: -1 }, limit: 15 },
         ).populate('from', { username: 1, avatar: 1, tag: 1 }));
     const results = await Promise.all(promises);
-    type Messages = {
-        [linkmanId: string]: MessageDocument[];
-    };
 
-    const messages = groups.reduce((result: Messages, groupID, index) => {
-        result[groupID.toString()] = (results[index] || []).reverse();
+    // const uniqueGroup = [...new Set(groups)];
+
+    const messages = groups.reduce((result: Messages, group, index) => {
+        result[group._id.toString()] = (results[index] || []).reverse();
         return result;
     }, {});
     console.log(`message: ${JSON.stringify(messages)}`);
@@ -341,19 +349,11 @@ export async function login(ctx: KoaContext<LoginData>) {
         avatar: user.avatar,
         username: user.username,
         tag: user.tag,
-        groups: [
-            // {
-            //     _id: group._id,
-            //     name: group.name,
-            //     avatar: group.avatar,
-            //     creator: group.creator._id,
-            //     createTime: group.createTime,
-            //     messages,
-            // },
-        ],
-        friends: [],
+        groups,
+        // friends: [],
         token,
-        // isAdmin: code === group.admin,
+        messages,
+        isAdmin,
     };
 }
 

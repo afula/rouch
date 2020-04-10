@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import platform from 'platform';
 import { useDispatch } from 'react-redux';
 
@@ -8,10 +8,19 @@ import useAction from '../../hooks/useAction';
 
 import Style from './LoginRegister.less';
 import { login, getLinkmansLastMessages } from '../../service';
-import getFriendId from '../../../utils/getFriendId';
-import { Message } from '../../state/reducer';
-import convertMessage from '../../../utils/convertMessage';
+
 import { ActionTypes } from '../../state/action';
+
+
+const getFingerprint: () => Promise<string> = () =>
+    new Promise((resolve) => {
+        Fingerprint2.get((components) => {
+            const values = components.map((component) => component.value);
+            const fp = Fingerprint2.x64hash128(values.join(''), 31);
+            resolve(fp);
+        });
+    });
+
 
 /** 登录框 */
 function Login() {
@@ -30,18 +39,28 @@ function Login() {
     //         setFingerPrint(fp);
     //     });
     // }
-    // console.log('f', fingerprint);
-
-    async function handleLogin() {
-        let fp: string = '';
-        // 指纹
-        Fingerprint2.get((components: any[]) => {
-            // console.log(components); // an array of components: {key: ..., value: ...}
-            const values = components.map((component) => component.value);
-            fp = Fingerprint2.x64hash128(values.join(''), 31);
-            setFingerPrint(fp);
+    useEffect(() => {
+        getFingerprint().then((finger) => {
+            console.log(`finger: ${finger}`);
+            setFingerPrint(finger);
+        }).catch(() => {
+            setTimeout(() => {
+                getFingerprint().then((finger) => {
+                    console.log(`finger: ${finger}`);
+                    setFingerPrint(finger);
+                });
+            }, 1000);
         });
-        console.log('get fingerprint', fingerprint);
+    }, []);
+    async function handleLogin() {
+        // 指纹
+        // Fingerprint2.get((components: any[]) => {
+        //     // console.log(components); // an array of components: {key: ..., value: ...}
+        //     const values = components.map((component) => component.value);
+        //     fp = Fingerprint2.x64hash128(values.join(''), 31);
+        //     setFingerPrint(fp);
+        // });
+
         const user = await login(
             username,
             password,
@@ -55,19 +74,24 @@ function Login() {
             action.toggleLoginRegisterDialog(false);
             window.localStorage.setItem('token', user.token);
 
-            const linkmanIds = [
-                ...user.groups.map((group: any) => group._id),
-                // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
-            ];
-            const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
+            // const linkmanIds = [
+            //     ...user.groups.map((group: any) => group._id),
+            //     // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
+            // ];
+            // const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
             // Object.values(linkmanMessages).forEach(
             //     // @ts-ignore
             //     (messages: Message[]) => messages.forEach(convertMessage),
             // );
-            dispatch({
-                type: ActionTypes.SetLinkmansLastMessages,
-                payload: linkmanMessages,
-            });
+
+            const linkmanMessages = user.messages;
+
+            if (linkmanMessages && linkmanMessages.length) {
+                dispatch({
+                    type: ActionTypes.SetLinkmansLastMessages,
+                    payload: linkmanMessages,
+                });
+            }
         }
     }
 
