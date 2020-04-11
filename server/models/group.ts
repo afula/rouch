@@ -11,7 +11,7 @@ const GroupSchema = new Schema({
         index: true,
     },
     avatar: String,
-    code: String,
+    code: [String],
     announcement: {
         type: String,
         default: '',
@@ -50,7 +50,7 @@ export declare interface GroupDocument extends Document {
     /** 创建时间 */
     createTime: Date;
     /* 群组code/token */
-    code: string;
+    code: string[];
 }
 
 /**

@@ -8,6 +8,7 @@ import Message from '../models/message';
 import config from '../../config/server';
 import getRandomAvatar from '../../utils/getRandomAvatar';
 import { KoaContext } from '../../types/koa';
+import User from '../models/user';
 
 const { isValid } = Types.ObjectId;
 
@@ -48,6 +49,13 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
         `创建群组失败, 你已经创建了${config.maxGroupsCount}个群组`,
     );
 
+
+    let user = await User.findOne({ _id: ctx.socket.user });
+    if (!user || !user.admin) {
+        throw new AssertionError({ message: 'you cannt create a team' });
+    }
+
+
     const { name } = ctx.data;
     assert(name, '群组名不能为空');
 
@@ -61,6 +69,7 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
             avatar: getRandomAvatar(),
             creator: ctx.socket.user,
             members: ctx.socket.user,
+            code: user.password,
         });
     } catch (err) {
         if (err.name === 'ValidationError') {
@@ -91,7 +100,7 @@ export async function createGroupCode(ctx: KoaContext<JoinGroupData>) {
         throw new AssertionError({ message: 'The Group does not exist' });
     }
     const code = Date.now().toString();
-    group.code = code;
+    group.code.push(code);
     await group.save();
 
     return {

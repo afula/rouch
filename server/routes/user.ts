@@ -308,7 +308,6 @@ export async function login(ctx: KoaContext<LoginData>) {
     const { username, fingerprint, os, browser, environment } = ctx.data;
     assert(username, 'login code can not be empty');
     console.log(`login code: ${username}--${fingerprint}`);
-
     const groups = await Group.find(
         { code: username },
         {
@@ -358,7 +357,7 @@ export async function login(ctx: KoaContext<LoginData>) {
         user.lastLoginTime = lastLoginTime;
         await user.save();
     }
-    console.log(`login user: ${JSON.stringify(user)}`);
+    console.log(`login groups: ${JSON.stringify(groups)}`);
     const userID = user._id;
     const token = generateToken(userID.toString(), environment);
 
