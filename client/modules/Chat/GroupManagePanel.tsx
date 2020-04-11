@@ -10,7 +10,13 @@ import Message from '../../components/Message';
 import Avatar from '../../components/Avatar';
 import Tooltip from '../../components/Tooltip';
 import Dialog from '../../components/Dialog';
-import { changeGroupName, changeGroupAvatar, deleteGroup, leaveGroup } from '../../service';
+import {
+    changeGroupName,
+    changeGroupAvatar,
+    deleteGroup,
+    leaveGroup,
+    createGroupCode,
+} from '../../service';
 import useAction from '../../hooks/useAction';
 import readDiskFIle from '../../../utils/readDiskFile';
 import config from '../../../config/client';
@@ -34,6 +40,7 @@ function GroupManagePanel(props: GroupManagePanelProps) {
     const selfId = useSelector((state: State) => state.user?._id);
     const [deleteConfirmDialog, setDialogStatus] = useState(false);
     const [groupName, setGroupName] = useState('');
+    const [groupcode, setGrupCode] = useState('');
     const context = useContext(ShowUserOrGroupInfoContext);
 
     async function handleChangeGroupName() {
@@ -41,6 +48,15 @@ function GroupManagePanel(props: GroupManagePanelProps) {
         if (isSuccess) {
             Message.success('修改群名称成功');
             action.setLinkmanProperty(groupId, 'name', groupName);
+        }
+    }
+
+    async function handleGetCode() {
+        const code = await createGroupCode(groupId);
+        if (code) {
+            console.log('获取code', JSON.stringify(code));
+            // setGrupCode(JSON.stringify(code));
+            setGrupCode(code.code);
         }
     }
 
@@ -128,7 +144,21 @@ function GroupManagePanel(props: GroupManagePanelProps) {
                             </Button>
                         </div>
                     ) : null}
+                    {/* 创建群TOKEN */}
                     {isLogin && selfId === creator ? (
+                        <div className={Style.block}>
+                            <p className={Style.blockTitle}>群TOKEN</p>
+                            <Input
+                                className={Style.input}
+                                value={groupcode}
+                                onChange={setGrupCode}
+                            />
+                            <Button className={Style.button} onClick={handleGetCode}>
+                                生成TOKEN
+                            </Button>
+                        </div>
+                    ) : null}
+                    {/* {isLogin && selfId === creator ? (
                         <div className={Style.block}>
                             <p className={Style.blockTitle}>修改群头像</p>
                             <img
@@ -138,7 +168,7 @@ function GroupManagePanel(props: GroupManagePanelProps) {
                                 onClick={handleChangeGroupAvatar}
                             />
                         </div>
-                    ) : null}
+                    ) : null} */}
 
                     <div className={Style.block}>
                         <p className={Style.blockTitle}>功能</p>

@@ -171,7 +171,7 @@ class Message extends Component<MessageProps, MessageState> {
                             src={avatar}
                             size={44}
                             // @ts-ignore
-                            onClick={() => this.handleClickAvatar(context.showUserInfo)}
+                            // onClick={() => this.handleClickAvatar(context.showUserInfo)}
                         />
                     )}
                 </ShowUserOrGroupInfoContext.Consumer>
@@ -193,7 +193,11 @@ class Message extends Component<MessageProps, MessageState> {
                         <div className={Style.content}>{this.renderContent()}</div>
                         {showButtonList && (
                             <div className={Style.buttonList}>
-                                <Tooltip placement={isSelf ? 'left' : 'right'} mouseEnterDelay={0.3} overlay={<span>撤回消息</span>}>
+                                <Tooltip
+                                    placement={isSelf ? 'left' : 'right'}
+                                    mouseEnterDelay={0.3}
+                                    overlay={<span>撤回消息</span>}
+                                >
                                     <div>
                                         <IconButton
                                             className={Style.button}

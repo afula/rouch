@@ -32,6 +32,7 @@ function SelfInfo(props: SelfInfoProps) {
 
     const action = useAction();
     const userId = useSelector((state: State) => state.user?._id);
+    const u_name = useSelector((state: State) => state.user?.username);
     const avatar = useSelector((state: State) => state.user?.avatar);
     const primaryColor = useSelector((state: State) => state.status.primaryColor);
     const [loading, toggleLoading] = useState(false);
@@ -126,7 +127,7 @@ function SelfInfo(props: SelfInfoProps) {
     async function handleChangeUsername() {
         const isSuccess = await changeUsername(username);
         if (isSuccess) {
-            // onClose();
+            onClose();
             // reLogin('修改用户名成功, 请使用新用户名重新登录');
             dispatch({
                 type: ActionTypes.UpdateUserInfo,
@@ -134,6 +135,7 @@ function SelfInfo(props: SelfInfoProps) {
                     username: username,
                 },
             });
+            Message.success('修改用户名成功');
             // action.setLinkmanProperty(userId, 'name', username);
         }
     }
