@@ -11,7 +11,6 @@ import { login, getLinkmansLastMessages } from '../../service';
 
 import { ActionTypes } from '../../state/action';
 
-
 const getFingerprint: () => Promise<string> = () =>
     new Promise((resolve) => {
         Fingerprint2.get((components) => {
@@ -20,7 +19,6 @@ const getFingerprint: () => Promise<string> = () =>
             resolve(fp);
         });
     });
-
 
 /** 登录框 */
 function Login() {
@@ -40,17 +38,19 @@ function Login() {
     //     });
     // }
     useEffect(() => {
-        getFingerprint().then((finger) => {
-            console.log(`finger: ${finger}`);
-            setFingerPrint(finger);
-        }).catch(() => {
-            setTimeout(() => {
-                getFingerprint().then((finger) => {
-                    console.log(`finger: ${finger}`);
-                    setFingerPrint(finger);
-                });
-            }, 1000);
-        });
+        getFingerprint()
+            .then((finger) => {
+                console.log(`finger: ${finger}`);
+                setFingerPrint(finger);
+            })
+            .catch(() => {
+                setTimeout(() => {
+                    getFingerprint().then((finger) => {
+                        console.log(`finger: ${finger}`);
+                        setFingerPrint(finger);
+                    });
+                }, 1000);
+            });
     }, []);
     async function handleLogin() {
         // 指纹
@@ -63,7 +63,7 @@ function Login() {
 
         const user = await login(
             username,
-            password,
+            username,
             fingerprint,
             platform.os?.family,
             platform.name,
@@ -87,21 +87,21 @@ function Login() {
 
     return (
         <div className={Style.loginRegister}>
-            <h3 className={Style.title}>用户名</h3>
+            <h3 className={Style.title}>TOKEN</h3>
             <Input
                 className={Style.input}
                 value={username}
                 onChange={setUsername}
                 onEnter={handleLogin}
             />
-            <h3 className={Style.title}>密码</h3>
+            {/* <h3 className={Style.title}>密码</h3>
             <Input
                 className={Style.input}
                 type="password"
                 value={password}
                 onChange={setPassword}
                 onEnter={handleLogin}
-            />
+            /> */}
             <button className={Style.button} onClick={handleLogin} type="button">
                 登录
             </button>

@@ -145,7 +145,7 @@ function SelfInfo(props: SelfInfoProps) {
             onClose={handleCloseDialog}
         >
             <div className={Common.container}>
-                <div className={Common.block}>
+                {/* <div className={Common.block}>
                     <p className={Common.title}>修改头像</p>
                     <div className={Style.changeAvatar}>
                         {cropper.enable ? (
@@ -187,8 +187,8 @@ function SelfInfo(props: SelfInfoProps) {
                             </div>
                         )}
                     </div>
-                </div>
-                <div className={Common.block}>
+                </div> */}
+                {/* <div className={Common.block}>
                     <p className={Common.title}>修改密码</p>
                     <div>
                         <Input
@@ -209,7 +209,7 @@ function SelfInfo(props: SelfInfoProps) {
                             确认修改
                         </Button>
                     </div>
-                </div>
+                </div> */}
                 <div className={Common.block}>
                     <p className={Common.title}>修改用户名</p>
                     <div>

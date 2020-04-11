@@ -12,7 +12,6 @@ import Message from '../../components/Message';
 import Style from './HeaderBar.less';
 import useAero from '../../hooks/useAero';
 
-
 interface HeaderBarProps {
     /** 联系人名称, 没有联系人时会传空 */
     name: string;
@@ -64,11 +63,9 @@ function HeaderBar(props: HeaderBarProps) {
                     </span>
                 )}
             </h2>
-            {
-                isLogin && type
-                    ? (
-                        <div className={`${Style.buttonContainer} ${Style.rightButtonContainer}`}>
-                            {type === 'group' && (
+            {isLogin && type ? (
+                <div className={`${Style.buttonContainer} ${Style.rightButtonContainer}`}>
+                    {/* {type === 'group' && (
                                 <CopyToClipboard text={`invite::${name}`}>
                                     <IconButton
                                         width={40}
@@ -78,18 +75,18 @@ function HeaderBar(props: HeaderBarProps) {
                                         onClick={handleShareGroup}
                                     />
                                 </CopyToClipboard>
-                            )}
-                            <IconButton
-                                width={40}
-                                height={40}
-                                icon="gongneng"
-                                iconSize={24}
-                                onClick={onClickFunction}
-                            />
-                        </div>
-                    )
-                    : <div className={Style.buttonContainer} />
-            }
+                            )} */}
+                    <IconButton
+                        width={40}
+                        height={40}
+                        icon="gongneng"
+                        iconSize={24}
+                        onClick={onClickFunction}
+                    />
+                </div>
+            ) : (
+                <div className={Style.buttonContainer} />
+            )}
         </div>
     );
 }
