@@ -321,16 +321,14 @@ export async function login(ctx: KoaContext<LoginData>) {
     );
     const salt = `${username}-${fingerprint}`;
     let user = await User.findOne({ $or: [{ salt }, { vp: username }] });
-    let isAdmin:boolean = false;
+    let isAdmin:boolean = true;
     console.log(`login user: ${JSON.stringify(user)}`);
     if (user) {
         if (!user.admin) {
-            if (!(groups && groups.length)) {
-                throw new AssertionError({ message: 'Your Code Is Error' });
-            }
-        } else {
             isAdmin = true;
         }
+    } else if (!(groups && groups.length)) {
+        throw new AssertionError({ message: 'Your Code Is Error' });
     }
     const name = Date.now().toString();
     const password = fingerprint;
