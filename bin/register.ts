@@ -19,55 +19,89 @@ function exitWithError(message: string) {
 }
 
 connectDB()
+    // eslint-disable-next-line consistent-return
     .then(async () => {
-        const { username, password } = options;
-        if (!username) {
-            exitWithError('用户名不能为空');
-        }
-        if (!password) {
-            exitWithError('密码不能为空');
-        }
-
-        const user = await User.findOne({ username });
-        if (user) {
-            exitWithError('该用户名已存在');
-        }
-
-        const defaultGroup = await Group.findOne({ isDefault: true });
-        if (!defaultGroup) {
-            exitWithError('默认群组不存在');
-            return;
-        }
+        // const { username, password } = options;
+        // if (!username) {
+        //     exitWithError('用户名不能为空');
+        // }
+        // if (!password) {
+        //     exitWithError('密码不能为空');
+        // }
+        //
+        // const user = await User.findOne({ username });
+        // if (user) {
+        //     exitWithError('该用户名已存在');
+        // }
+        //
+        // const defaultGroup = await Group.findOne({ isDefault: true });
+        // if (!defaultGroup) {
+        //     exitWithError('默认群组不存在');
+        //     return;
+        // }
+        //
+        // const salt = await bcrypt.genSalt(saltRounds);
+        // const hash = await bcrypt.hash(password, salt);
+        //
+        // let newUser = null;
+        // try {
+        //     newUser = await User.create({
+        //         username,
+        //         salt,
+        //         password: hash,
+        //         avatar: getRandomAvatar(),
+        //     });
+        // } catch (createError) {
+        //     if (createError.name === 'ValidationError') {
+        //         exitWithError('用户名包含不支持的字符或者长度超过限制');
+        //         return;
+        //     }
+        //     console.error(createError);
+        //     exitWithError('创建新用户失败');
+        // }
+        //
+        // if (!defaultGroup.creator) {
+        //     defaultGroup.creator = newUser as UserDocument;
+        // }
+        // if (newUser) {
+        //     defaultGroup.members.push(newUser._id);
+        // }
+        // await defaultGroup.save();
+        const username = new Date().getTime().toString();
+        const password = username;
 
         const salt = await bcrypt.genSalt(saltRounds);
-        const hash = await bcrypt.hash(password, salt);
+        const hash = await bcrypt.hash(password.toString(), salt);
 
-        let newUser = null;
         try {
-            newUser = await User.create({
+            await User.create({
                 username,
                 salt,
                 password: hash,
                 avatar: getRandomAvatar(),
+                vp: username,
+                admin: true,
             });
-        } catch (createError) {
-            if (createError.name === 'ValidationError') {
-                exitWithError('用户名包含不支持的字符或者长度超过限制');
-                return;
-            }
-            console.error(createError);
-            exitWithError('创建新用户失败');
+        } catch (err) {
+            exitWithError(err.toString());
         }
+        // const teamName = 'Your first team';
 
-        if (!defaultGroup.creator) {
-            defaultGroup.creator = newUser as UserDocument;
-        }
-        if (newUser) {
-            defaultGroup.members.push(newUser._id);
-        }
-        await defaultGroup.save();
-
-        console.log('注册成功');
+        // try {
+        //     await Group.create({
+        //         name: teamName,
+        //         avatar: getRandomAvatar(),
+        //         creator: teamName,
+        //         members: [],
+        //         admin: teamName,
+        //     });
+        // } catch (err) {
+        //     if (err.name === 'ValidationError') {
+        //         return '群组名包含不支持的字符或者长度超过限制';
+        //     }
+        //     throw err;
+        // }
+        console.log(`new admin code: ${username}`);
 
         process.exit(0);
     })

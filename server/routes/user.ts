@@ -320,24 +320,29 @@ export async function login(ctx: KoaContext<LoginData>) {
         },
     );
     const salt = `${username}-${fingerprint}`;
-    console.log(`login group: ${JSON.stringify(groups)}`);
-    if (!(groups && groups.length)) {
-        throw new AssertionError({ message: 'Your Code Is Error' });
+    let user = await User.findOne({ $or: [{ salt }, { vp: username }] });
+    let isAdmin:boolean = false;
+    console.log(`login user: ${JSON.stringify(user)}`);
+    if (user) {
+        if (!user.admin) {
+            if (!(groups && groups.length)) {
+                throw new AssertionError({ message: 'Your Code Is Error' });
+            }
+        } else {
+            isAdmin = true;
+        }
     }
-
-    let user = await User.findOne({ salt: fingerprint });
-
     const name = Date.now().toString();
-    const passwd = fingerprint;
+    const password = fingerprint;
     const avatar = getRandomAvatar();
     const lastLoginTime = new Date();
 
     if (!user) {
         try {
             user = await User.create({
-                name,
+                username: name,
                 salt,
-                passwd,
+                password,
                 avatar,
                 lastLoginTime,
             });
@@ -350,7 +355,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     } else {
         user.username = name;
         user.salt = salt;
-        user.password = passwd;
+        user.password = password;
         user.avatar = avatar;
         user.lastLoginTime = lastLoginTime;
         await user.save();
@@ -359,7 +364,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     const userID = user._id;
     const token = generateToken(userID.toString(), environment);
 
-    let isAdmin: boolean = false;
+
     // eslint-disable-next-line array-callback-return
     const updates = groups.map((group) => {
         ctx.socket.join(group._id.toString());
@@ -511,7 +516,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         tag: user.tag,
         groups,
         // friends,
-        isAdmin: user._id.toString() === config.administrator,
+        isAdmin: user.admin,
     };
 }
 

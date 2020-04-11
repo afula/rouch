@@ -3,7 +3,6 @@ import { UserDocument } from './user';
 
 const GroupSchema = new Schema({
     createTime: { type: Date, default: Date.now },
-
     name: {
         type: String,
         trim: true,
@@ -12,6 +11,7 @@ const GroupSchema = new Schema({
         index: true,
     },
     avatar: String,
+    code: String,
     announcement: {
         type: String,
         default: '',
@@ -49,8 +49,6 @@ export declare interface GroupDocument extends Document {
     members: Schema.Types.ObjectId[];
     /** 创建时间 */
     createTime: Date;
-    /* 管理员iid */
-    admin: string;
     /* 群组code/token */
     code: string;
 }

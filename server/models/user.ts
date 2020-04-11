@@ -1,4 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
+import { bool } from 'prop-types';
 
 const UserSchema = new Schema({
     createTime: { type: Date, default: Date.now },
@@ -14,6 +15,8 @@ const UserSchema = new Schema({
     salt: String,
     password: String,
     avatar: String,
+    vp: String,
+    admin: Boolean,
     tag: {
         type: String,
         default: '',
@@ -46,6 +49,9 @@ export interface UserDocument extends Document {
     createTime: Date;
     /** 最后登录时间 */
     lastLoginTime: Date;
+    /* VP用户 */
+    vp: string;
+    admin: boolean;
 }
 
 /**
