@@ -73,6 +73,7 @@ function Login() {
             action.setUser(user);
             action.toggleLoginRegisterDialog(false);
             window.localStorage.setItem('token', user.token);
+            console.log('打印用户信息', JSON.stringify(user));
 
             const linkmanMessages = user.messages;
             if (linkmanMessages) {

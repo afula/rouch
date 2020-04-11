@@ -74,7 +74,7 @@ interface LoginData extends Environment {
     /** 用户密码 */
     password: string;
     /** 指纹 */
-    fingerprint: string,
+    fingerprint: string;
 }
 /**
  * 注册新用户
@@ -320,7 +320,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     );
     const salt = `${username}-${fingerprint}`;
     let user = await User.findOne({ $or: [{ salt }, { vp: username }] });
-    let isAdmin:boolean = true;
+    let isAdmin: boolean = true;
     console.log(`login user: ${JSON.stringify(user)}`);
     if (user) {
         if (!user.admin) {
@@ -329,7 +329,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     } else if (!(groups && groups.length)) {
         throw new AssertionError({ message: 'Your Code Is Error' });
     }
-    const name = Date.now().toString();
+    // const name = Date.now().toString();
     const password = username;
     const avatar = getRandomAvatar();
     const lastLoginTime = new Date();
@@ -337,7 +337,7 @@ export async function login(ctx: KoaContext<LoginData>) {
     if (!user) {
         try {
             user = await User.create({
-                username: name,
+                username,
                 salt,
                 password,
                 avatar,
@@ -350,7 +350,7 @@ export async function login(ctx: KoaContext<LoginData>) {
             throw err;
         }
     } else {
-        user.username = name;
+        user.username;
         user.salt = salt;
         user.password = password;
         user.avatar = avatar;
@@ -395,7 +395,8 @@ export async function login(ctx: KoaContext<LoginData>) {
                 createTime: 1,
             },
             { sort: { createTime: -1 }, limit: 15 },
-        ).populate('from', { username: 1, avatar: 1, tag: 1 }));
+        ).populate('from', { username: 1, avatar: 1, tag: 1 }),
+    );
     const results = await Promise.all(promises);
 
     // const uniqueGroup = [...new Set(groups)];

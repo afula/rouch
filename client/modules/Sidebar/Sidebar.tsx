@@ -100,7 +100,7 @@ function Sidebar() {
                     />
                 )}
                 <div className={Style.buttons}>
-                    {isLogin &&
+                    {/* {isLogin &&
                         isAdmin &&
                         renderTooltip(
                             '管理员',
@@ -111,7 +111,7 @@ function Sidebar() {
                                 iconSize={28}
                                 onClick={() => toggleAdminDialogVisible(true)}
                             />,
-                        )}
+                        )} */}
                     {/* <Tooltip placement="right" mouseEnterDelay={0.3} overlay={<span>源码</span>}>
                         <a
                             className={Style.linkButton}

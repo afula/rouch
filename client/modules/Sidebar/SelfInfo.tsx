@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import ReactLoading from 'react-loading';
 import Cropper from 'react-cropper';
+import { useDispatch } from 'react-redux';
+import { ActionTypes } from '../../state/action';
 import 'cropperjs/dist/cropper.css';
 
 import { useSelector } from 'react-redux';
@@ -26,6 +28,7 @@ interface SelfInfoProps {
 
 function SelfInfo(props: SelfInfoProps) {
     const { visible, onClose } = props;
+    const dispatch = useDispatch();
 
     const action = useAction();
     const userId = useSelector((state: State) => state.user?._id);
@@ -123,8 +126,15 @@ function SelfInfo(props: SelfInfoProps) {
     async function handleChangeUsername() {
         const isSuccess = await changeUsername(username);
         if (isSuccess) {
-            onClose();
-            reLogin('修改用户名成功, 请使用新用户名重新登录');
+            // onClose();
+            // reLogin('修改用户名成功, 请使用新用户名重新登录');
+            dispatch({
+                type: ActionTypes.UpdateUserInfo,
+                payload: {
+                    username: username,
+                },
+            });
+            // action.setLinkmanProperty(userId, 'name', username);
         }
     }
 
