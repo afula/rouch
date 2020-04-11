@@ -330,7 +330,7 @@ export async function login(ctx: KoaContext<LoginData>) {
         throw new AssertionError({ message: 'Your Code Is Error' });
     }
     const name = Date.now().toString();
-    const password = fingerprint;
+    const password = username;
     const avatar = getRandomAvatar();
     const lastLoginTime = new Date();
 
