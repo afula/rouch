@@ -42,7 +42,7 @@ function Chat() {
         };
     }, []);
 
-    if (!hasUserInfo) {
+    if (!hasUserInfo || !linkman) {
         return <div className={Style.chat} />;
     }
     // todo if (!linkman)

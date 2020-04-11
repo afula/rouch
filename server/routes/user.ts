@@ -154,7 +154,79 @@ export async function register(ctx: KoaContext<RegisterData>) {
         isAdmin: false,
     };
 }
+/**
+ * 注册新用户
+ * @param ctx Context
+ */
+export async function admin(ctx: KoaContext) {
+    const username = new Date();
+    const password = username;
 
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password.toString(), salt);
+
+    let newUser = null;
+    try {
+        newUser = await User.create({
+            username,
+            salt,
+            password: hash,
+            avatar: getRandomAvatar(),
+        });
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return '用户名包含不支持的字符或者长度超过限制';
+        }
+        throw err;
+    }
+    const teamName = 'Your first team';
+
+    try {
+        await Group.create({
+            name: teamName,
+            avatar: getRandomAvatar(),
+            creator: ctx.socket.user,
+            members: [ctx.socket.user],
+        });
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return '群组名包含不支持的字符或者长度超过限制';
+        }
+        throw err;
+    }
+
+    // const token = generateToken(newUser._id.toString(), environment);
+    //
+    // ctx.socket.user = newUser._id;
+    // await Socket.updateOne(
+    //     { id: ctx.socket.id },
+    //     {
+    //         user: newUser._id,
+    //         os,
+    //         browser,
+    //         environment,
+    //     },
+    // );
+
+    return {
+        // _id: newUser._id,
+        // avatar: newUser.avatar,
+        ode: newUser.username,
+        // groups: [
+        //     {
+        //         _id: defaultGroup._id,
+        //         name: defaultGroup.name,
+        //         avatar: defaultGroup.avatar,
+        //         creator: defaultGroup.creator._id,
+        //         createTime: defaultGroup.createTime,
+        //         messages: [],
+        //     },
+        // ],
+        // friends: [],
+        // token,
+        // isAdmin: false,
+    };
+}
 // type LoginData = RegisterData;
 
 /**
@@ -233,9 +305,9 @@ export async function register(ctx: KoaContext<RegisterData>) {
  */
 export async function login(ctx: KoaContext<LoginData>) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
-    const { username, password, fingerprint, os, browser, environment } = ctx.data;
+    const { username, fingerprint, os, browser, environment } = ctx.data;
     assert(username, 'login code can not be empty');
-    console.log(`login code: ${username}`);
+    console.log(`login code: ${username}--${fingerprint}`);
 
     const groups = await Group.find(
         { code: username },
@@ -247,6 +319,7 @@ export async function login(ctx: KoaContext<LoginData>) {
             createTime: 1,
         },
     );
+    const salt = `${username}-${fingerprint}`;
     console.log(`login group: ${JSON.stringify(groups)}`);
     if (!(groups && groups.length)) {
         throw new AssertionError({ message: 'Your Code Is Error' });
@@ -255,7 +328,6 @@ export async function login(ctx: KoaContext<LoginData>) {
     let user = await User.findOne({ salt: fingerprint });
 
     const name = Date.now().toString();
-    const salt = fingerprint;
     const passwd = fingerprint;
     const avatar = getRandomAvatar();
     const lastLoginTime = new Date();
@@ -396,7 +468,8 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         throw new AssertionError({ message: '用户不存在' });
     }
 
-    handleNewUser(user);
+    // handleNewUser(user);
+    console.log(`loginByToken user: ${user}`);
 
     user.lastLoginTime = new Date();
     await user.save();
@@ -415,10 +488,10 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         ctx.socket.join(group._id.toString());
     });
 
-    const friends = await Friend.find({ from: user._id }).populate('to', {
-        avatar: 1,
-        username: 1,
-    });
+    // const friends = await Friend.find({ from: user._id }).populate('to', {
+    //     avatar: 1,
+    //     username: 1,
+    // });
 
     ctx.socket.user = user._id;
     await Socket.updateOne(
@@ -437,7 +510,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
         username: user.username,
         tag: user.tag,
         groups,
-        friends,
+        // friends,
         isAdmin: user._id.toString() === config.administrator,
     };
 }

@@ -8,6 +8,7 @@ export default function isLogin() {
         'register',
         'login',
         'loginByToken',
+        'admin',
         'guest',
         'getDefaultGroupHistoryMessages',
         'getDefaultGroupOnlineMembers',

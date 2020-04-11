@@ -73,17 +73,6 @@ function Login() {
             action.setUser(user);
             action.toggleLoginRegisterDialog(false);
             window.localStorage.setItem('token', user.token);
-            // console.log(`login user: ${JSON.stringify(user)}`);
-
-            // const linkmanIds = [
-            //     ...user.groups.map((group: any) => group._id),
-            //     // ...user.friends.map((friend: any) => getFriendId(friend.from, friend.to._id)),
-            // ];
-            // const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
-            // Object.values(linkmanMessages).forEach(
-            //     // @ts-ignore
-            //     (messages: Message[]) => messages.forEach(convertMessage),
-            // );
 
             const linkmanMessages = user.messages;
             if (linkmanMessages) {

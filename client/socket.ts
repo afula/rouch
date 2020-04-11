@@ -42,7 +42,6 @@ const socket = IO(config.server, options);
 socket.on('connect', async () => {
     // @ts-ignore
     dispatch({ type: ActionTypes.Connect, payload: null });
-
     const token = window.localStorage.getItem('token');
     if (token) {
         const user = await loginByToken(
@@ -51,6 +50,7 @@ socket.on('connect', async () => {
             platform.name,
             platform.description,
         );
+        console.log(`loginByToken user: ${JSON.stringify(user)}`);
         if (user) {
             dispatch({
                 type: ActionTypes.SetUser,
@@ -72,6 +72,14 @@ socket.on('connect', async () => {
             return null;
         }
     }
+    console.log('loginByToken user isnt exists');
+    dispatch({
+        type: ActionTypes.SetStatus,
+        payload: {
+            key: 'loginRegisterDialogVisible',
+            value: true,
+        },
+    });
     // loginFailback();
     return null;
 });
