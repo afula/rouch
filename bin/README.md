@@ -1,1 +1,1 @@
-npx ts-node bin/register.ts 
+###### npx ts-node bin/register.ts 

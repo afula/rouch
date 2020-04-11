@@ -60,7 +60,7 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
             name,
             avatar: getRandomAvatar(),
             creator: ctx.socket.user,
-            members: [ctx.socket.user],
+            members: ctx.socket.user,
         });
     } catch (err) {
         if (err.name === 'ValidationError') {
@@ -79,7 +79,7 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
     };
 }
 /**
- * 生成从Group Code/Token
+ * 生成Group Code/Token
  * @param ctx Context
  */
 export async function createGroupCode(ctx: KoaContext<JoinGroupData>) {

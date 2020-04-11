@@ -186,7 +186,7 @@ export async function admin(ctx: KoaContext) {
             name: teamName,
             avatar: getRandomAvatar(),
             creator: ctx.socket.user,
-            members: [ctx.socket.user],
+            members: ctx.socket.user,
         });
     } catch (err) {
         if (err.name === 'ValidationError') {
@@ -361,7 +361,6 @@ export async function login(ctx: KoaContext<LoginData>) {
     console.log(`login user: ${JSON.stringify(user)}`);
     const userID = user._id;
     const token = generateToken(userID.toString(), environment);
-
 
     // eslint-disable-next-line array-callback-return
     const updates = groups.map((group) => {
