@@ -315,15 +315,16 @@ export async function login(ctx: KoaContext<LoginData>) {
             name: 1,
             avatar: 1,
             creator: 1,
+            members: 1,
             createTime: 1,
         },
     );
     const salt = `${username}-${fingerprint}`;
     let user = await User.findOne({ $or: [{ salt }, { vp: username }] });
-    let isAdmin: boolean = true;
+    let isAdmin: boolean = false;
     console.log(`login user: ${JSON.stringify(user)}`);
     if (user) {
-        if (!user.admin) {
+        if (user.admin) {
             isAdmin = true;
         }
     } else if (!(groups && groups.length)) {
@@ -371,10 +372,15 @@ export async function login(ctx: KoaContext<LoginData>) {
             group.creator = user as UserDocument;
             isAdmin = true;
         }
-        if (group.members && group.members.length && group.members.indexOf(userID) === -1) {
-            group.members.push(userID);
+        if (group.members) {
+            if (!group.members.find((id) => id === userID)) {
+                console.log('isnt member');
+                group.members.push(userID);
+            }
         }
         group.save();
+
+        console.log(`map group: ${group}`);
 
         ctx.socket.join(group._id.toString());
     });
@@ -417,7 +423,7 @@ export async function login(ctx: KoaContext<LoginData>) {
             environment,
         },
     );
-
+    console.log(`login isAdmin: ${isAdmin}`);
     return {
         _id: user._id,
         avatar: user.avatar,
@@ -463,6 +469,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
             avatar: 1,
             username: 1,
             tag: 1,
+            admin: 1,
             createTime: 1,
         },
     );
@@ -505,7 +512,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
             environment,
         },
     );
-
+    console.log(`loginByToken isAdmin: ${user.admin}`);
     return {
         _id: user._id,
         avatar: user.avatar,

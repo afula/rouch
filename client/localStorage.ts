@@ -65,10 +65,7 @@ export default function getData() {
                 LocalStorageKey.BackgroundImage,
                 config.theme[defaultTheme].backgroundImage,
             ),
-            aero: getSwitchValue(
-                LocalStorageKey.Aero,
-                false,
-            ),
+            aero: getSwitchValue(LocalStorageKey.Aero, false),
         };
     }
     return {

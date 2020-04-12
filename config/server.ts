@@ -17,7 +17,7 @@ export default {
     jwtSecret: options.jwtSecret || env.JwtSecret || 'jwtSecret',
 
     // Maximize the number of groups
-    maxGroupsCount: 3,
+    maxGroupsCount: 1,
 
     // qiniu config
     qiniuAccessKey: options.qiniuAccessKey || env.QiniuAccessKey || '',

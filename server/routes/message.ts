@@ -157,7 +157,8 @@ export async function getLinkmansLastMessages(ctx: KoaContext<GetLinkmanLastMess
                 createTime: 1,
             },
             { sort: { createTime: -1 }, limit: FirstTimeMessagesCount },
-        ).populate('from', { username: 1, avatar: 1, tag: 1 }));
+        ).populate('from', { username: 1, avatar: 1, tag: 1 }),
+    );
     const results = await Promise.all(promises);
     type Messages = {
         [linkmanId: string]: MessageDocument[];

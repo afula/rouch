@@ -174,7 +174,7 @@ export async function createGroup(name: string) {
 }
 /**
  * 创建群组 code/token
- * @param groupId 群组名id
+ * @param groupId 群组id
  */
 export async function createGroupCode(groupId: string) {
     const [, code] = await fetch('createGroupCode', { groupId });

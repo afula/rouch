@@ -17,7 +17,7 @@ function FunctionBarAndLinkmanList() {
         (state: State) => state.status.functionBarAndLinkmanListVisible,
     );
     const aero = useAero();
-
+    const isAdmin = useSelector((state: State) => state.user && state.user.isAdmin);
     if (!functionBarAndLinkmanListVisible) {
         return null;
     }
@@ -31,7 +31,7 @@ function FunctionBarAndLinkmanList() {
     return (
         <div className={Style.functionBarAndLinkmanList} onClick={handleClick} role="button">
             <div className={Style.container} {...aero}>
-                {isLogin && <FunctionBar />}
+                {isLogin && isAdmin && <FunctionBar />}
                 {isLogin && <LinkmanList />}
                 {/* 登陆后展示群组和好友信息 */}
                 {/* <LinkmanList /> */}

@@ -9,7 +9,6 @@ import config from '../../config/server';
 import getRandomAvatar from '../../utils/getRandomAvatar';
 import { KoaContext } from '../../types/koa';
 import User from '../models/user';
-
 const { isValid } = Types.ObjectId;
 
 /**
@@ -46,15 +45,13 @@ export async function createGroup(ctx: KoaContext<CreateGroupData>) {
     const ownGroupCount = await Group.count({ creator: ctx.socket.user });
     assert(
         ownGroupCount < config.maxGroupsCount,
-        `创建群组失败, 你已经创建了${config.maxGroupsCount}个群组`,
+        'Please delete your current team,then your can create new team',
     );
 
-
-    let user = await User.findOne({ _id: ctx.socket.user });
+    const user = await User.findOne({ _id: ctx.socket.user });
     if (!user || !user.admin) {
         throw new AssertionError({ message: 'you cannt create a team' });
     }
-
 
     const { name } = ctx.data;
     assert(name, '群组名不能为空');
@@ -291,7 +288,7 @@ interface DeleteGroupData {
  * 删除群组, 只有群创建者有权限
  * @param ctx Context
  */
-export async function deleteGroup(ctx: KoaContext<DeleteGroupData>) {
+/* export async function deleteGroup(ctx: KoaContext<DeleteGroupData>) {
     const { groupId } = ctx.data;
     assert(isValid(groupId), '无效的群组ID');
 
@@ -302,6 +299,41 @@ export async function deleteGroup(ctx: KoaContext<DeleteGroupData>) {
     assert(group.creator.toString() === ctx.socket.user.toString(), '只有群主才能解散群组');
     assert(group.isDefault !== true, '默认群组不允许解散');
 
+    await group.remove();
+
+    ctx.socket.to(groupId).emit('deleteGroup', { groupId });
+
+    return {};
+} */
+/**
+ * 删除群组, 只有群创建者有权限
+ * @param ctx Context
+ */
+export async function deleteGroup(ctx: KoaContext<DeleteGroupData>) {
+    const { groupId } = ctx.data;
+    assert(isValid(groupId), '无效的群组ID');
+
+    const group = await Group.findOne({ _id: groupId });
+    if (!group) {
+        throw new AssertionError({ message: '群组不存在' });
+    }
+    assert(group.creator.toString() === ctx.socket.user.toString(), '只有群主才能解散群组');
+    assert(group.isDefault !== true, '默认群组不允许解散');
+    // return{};
+    const index = group.members.indexOf(group.creator._id);
+    group.members.splice(index, 1);
+    console.log(`after slice group member: ${group.members}`);
+    const promises = group.members.map((member) => {
+        // if (group.members.indexOf(group.creator._id) !== -1) {
+        console.log(`delete group member: ${member}---creator: ${group.creator._id}`);
+        const deleteUser = User.findOne({ _id: member });
+        deleteUser
+            .remove()
+            .catch((err) => console.log(`delete group remove member error:${err.toString()}`));
+        // }
+    });
+    await Promise.all(promises);
+    // await User.deleteMany(group.members);
     await group.remove();
 
     ctx.socket.to(groupId).emit('deleteGroup', { groupId });

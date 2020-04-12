@@ -1,1 +1,2 @@
-###### npx ts-node bin/register.ts 
+###### generate token
+npx ts-node bin/register.ts 
